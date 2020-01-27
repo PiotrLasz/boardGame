@@ -1,3 +1,8 @@
+const UP = "UP";
+const DOWN = "DOWN";
+const RIGHT = "RIGHT";
+const LEFT = "LEFT";
+
 class Game {
 
     rows = 0;
@@ -38,8 +43,9 @@ class Game {
         try {
 
             let player1tileIndex = randomIntInRange(0, this.availableTiles.length - 1);
-            let weapon = new Weapon("Default P1", this.availableTiles[player1tileIndex], "img/weapon4.png", 10);
+            let weapon = new Weapon("Default P1", this.availableTiles[player1tileIndex], "img/weapon4.png", 10, "hasPlayer");
             this.player1 = new Player("Player 1", 100, this.availableTiles[player1tileIndex], weapon, "img/player1.png");
+            weapon.player = this.player1;
             this.availableTiles.splice(player1tileIndex, 1);
 
             let player2tileIndex = randomIntInRange(0, this.availableTiles.length - 1);
@@ -47,8 +53,9 @@ class Game {
             while (this.isTileAdjacent(this.player1.tile, this.availableTiles[player2tileIndex])) {
                 player2tileIndex = randomIntInRange(0, this.availableTiles.length - 1);
             }
-            let weapon2 = new Weapon("Default P2", this.availableTiles[player2tileIndex], "img/weapon3.png", 10);
+            let weapon2 = new Weapon("Default P2", this.availableTiles[player2tileIndex], "img/weapon3.png", 10, "hasPlayer");
             this.player2 = new Player("Player 2", 100, this.availableTiles[player2tileIndex], weapon2, "img/player2.png");
+            weapon2.player = this.player2;
             this.availableTiles.splice(player2tileIndex, 1);
 
         }
@@ -77,8 +84,8 @@ class Game {
 
     createGrid() {
 
-        this.cols = randomIntInRange(7, 12);
-        this.rows = randomIntInRange(7, 12);
+        this.cols = randomIntInRange(8, 8);
+        this.rows = randomIntInRange(8, 8);
 
         for (let i = 0; i < this.rows; i++) {
 
@@ -119,10 +126,10 @@ class Tile {
         this.adjecents = [];
 
     }
-    
+
     findAdjecents() {
         let adjecents = [];
-        
+
         let minRow = this.row - 3 < 0 ? 0 : this.row - 3;
         let maxRow = this.row + 3 >= objGame.rows ? objGame.rows : this.row + 3;
         let minCol = this.col - 3 < 0 ? 0 : this.col - 3;
@@ -132,7 +139,7 @@ class Tile {
             if (!objGame.tiles2D[i] || !objGame.tiles2D[i][this.col])
                 continue;
             let currentTile = objGame.tiles2D[i][this.col];
-            if (currentTile.blocked|| currentTile.player)
+            if (currentTile.blocked || currentTile.player)
                 break;
             adjecents.push(currentTile);
         }
@@ -141,7 +148,7 @@ class Tile {
             if (!objGame.tiles2D[i] || !objGame.tiles2D[i][this.col])
                 continue;
             let currentTile = objGame.tiles2D[i][this.col];
-            if (currentTile.blocked|| currentTile.player)
+            if (currentTile.blocked || currentTile.player)
                 break;
             adjecents.push(currentTile);
         }
@@ -150,7 +157,7 @@ class Tile {
             if (!objGame.tiles2D[this.row] || !objGame.tiles2D[this.row][i])
                 continue;
             let currentTile = objGame.tiles2D[this.row][i];
-            if (currentTile.blocked|| currentTile.player)
+            if (currentTile.blocked || currentTile.player)
                 break;
             adjecents.push(currentTile);
         }
@@ -176,108 +183,190 @@ class Player {
         this.tile = tile;
         this.weapon = weapon;
         this.image = image;
+        this.direction = UP;
         tile.player = this;
     }
 
     moveToTile(tile) {
         let oldTile = this.tile;
-        let objAnimate = {
+        let oldWeapon = this.weapon;
+        let foundWeapon = this.isWeaponInBetween(oldTile, tile);
+        let newDirection = this.getMoveDirection(oldTile, tile);
+        this.changePlayerDirection(newDirection)
+
+        console.log(this.direction);
+        $(`#player_${this.id}`).animate({
             left: tile.x,
             top: tile.y
-        };
-        $(`#player_${this.id}`).animate(objAnimate);
+        });
         // $(`#weapon_${this.weapon.id}`).animate(objAnimate)
+
         this.weapon.moveToTile(tile)
-        
-        this.tile.player = null;
-        tile.player = this;
-        this.tile = tile;
-        
-        console.log("op",!!oldTile.weapon,!!oldTile.player)
-        console.log("new",!!tile.weapon,!!tile.player)
-        
-        let betweenWeapon = this.isWeaponInBetween(oldTile,tile);
-        if(betweenWeapon){
-            betweenWeapon.weapon.exchangeWithPlayer(this);
+
+        this.tile = tile; // Assign Current tile to current player
+        tile.player = this; // Assign current player to current tile. 
+        oldTile.player = null; // Because there is no player standing. 
+
+        // console.log("op",!!oldTile.weapon,!!oldTile.player)
+        // console.log("new",!!tile.weapon,!!tile.player)
+
+
+        console.log("weapon found in between. ", !!foundWeapon)
+        if (foundWeapon) {
+            foundWeapon.exchangeWithPlayer(this, tile, oldWeapon);
             // betweenWeapon.moveToTile(this.weapon.tile);
             // this.weapon.moveToTile(betweenWeapon)
         }
     }
 
-    isWeaponInBetween(tile1, tile2){
-        if(tile1.row > tile2.row || tile1.col > tile2.col){
+    isWeaponInBetween(tile1, tile2) {
+        if (tile1.row > tile2.row || tile1.col > tile2.col) {
             let t = tile1;
-            tile1= tile2;
+            tile1 = tile2;
             tile2 = t;
         }
-        for(let i=tile1.row;i<=tile2.row;i++){
-            for(let j=tile1.col;j<=tile2.col;j++){
+        console.log(tile1, tile2)
+        for (let i = tile1.row; i <= tile2.row; i++) {
+            for (let j = tile1.col; j <= tile2.col; j++) {
                 let tile = objGame.tiles2D[i][j];
-                if(tile.weapon && !tile.player){
-                    console.log("match",!!tile.weapon, !!tile.player)
-                    return tile;
+                console.log(`checking for cell t${i}${j}`, tile.weapon, tile.player)
+                if (tile.weapon && !tile.player) {
+                    // console.log("match", !!tile.weapon, !!tile.player)
+                    return tile.weapon;
                 }
             }
         }
     }
 
     highlightAdjecents() {
-
         this.tile.findAdjecents().forEach(tile => {
             $(`#tile_${tile.id}`).addClass("tile-high");
         })
+    }
+
+    getMoveDirection(fromTile, toTile) {
+        if (fromTile.row > toTile.row) {
+            return UP;
+        }
+        else if (fromTile.row < toTile.row) {
+            return DOWN;
+        }
+        else if (fromTile.col > toTile.col) {
+            return RIGHT;
+        }
+        else if (fromTile.col < toTile.col) {
+            return LEFT;
+        }
+    }
+
+    changePlayerDirection(newDirection) {
+        this.direction = newDirection;
+        switch (newDirection) {
+            case UP:
+                $(`#player_${this.id}`).css("transform", "rotate(0deg)")
+                break;
+            case DOWN:
+                $(`#player_${this.id}`).css("transform", "rotate(180deg)")
+                break;
+            case RIGHT:
+                $(`#player_${this.id}`).css("transform", "rotate(-90deg)")
+                break;
+            case LEFT:
+                $(`#player_${this.id}`).css("transform", "rotate(90deg)")
+                break;
+        }
     }
 
 }
 
 class Weapon {
 
-    constructor(name, tile, img, damage) {
+    constructor(name, tile, img, damage, player = null) {
         this.id = Date.now() + randomIntInRange(5000, 5000000);
         this.name = name;
         this.tile = tile;
         this.img = img;
         this.damage = damage;
-        tile.weapon = this;
+        this.player = player;
+
+        if (!player) {
+            tile.weapon = this;
+        }
 
     }
 
-    exchangeWithPlayer(player){
+    exchangeWithPlayer(player, playerNewTile, playerOldWeapon) {
+        let oldTile = this.tile;
+        oldTile.weapon = null;
+
+        this.tile = playerNewTile; // Assigned tile to this weapon
+        playerNewTile.weapon = this; // Assigned weapon to player's new tile. 
+
+        let oldWeapon = player.weapon;
+        oldWeapon.tile = oldTile;
+        oldTile.weapon = oldWeapon;
+
+        playerOldWeapon.player = null;
+        player.weapon = this;
+        this.player = player;
+
         let $currentWeapon = $(`#weapon_${this.id}`);
-        let $playerWeapon = $(`#weapon_${player.weapon.id}`);
+        let $playerWeapon = $(`#weapon_${oldWeapon.id}`);
         $currentWeapon.animate({
-            left: player.tile.x,
-            top: player.tile.y
+            left: this.tile.x,
+            top: this.tile.y
         })
         $currentWeapon.removeClass("weapon").addClass("player-weapon");
         $playerWeapon.removeClass("player-weapon").addClass("weapon");
         $playerWeapon.animate({
-            left: this.tile.x,
-            top: this.tile.y
+            left: oldTile.x,
+            top: oldTile.y
         })
-        // console.log(player.tile, player.weapon, this, this.tile)
-        let currentWeapon = this;
-        let playerWeapon = player.weapon;
-        let currentWeaponTile = currentWeapon.tile;
-        let playerWeaponTile = playerWeapon.tile;
-        currentWeapon.tile = playerWeaponTile;
-        playerWeapon.tile = currentWeaponTile;
-        currentWeaponTile.weapon = playerWeapon;
-        playerWeaponTile.weapon = currentWeapon;
+
+        console.log(this, player, oldWeapon)
     }
 
-    moveToTile(tile){
+    // exchangeWithPlayer(player){
+    //     let $currentWeapon = $(`#weapon_${this.id}`);
+    //     let $playerWeapon = $(`#weapon_${player.weapon.id}`);
+    //     $currentWeapon.animate({
+    //         left: player.tile.x,
+    //         top: player.tile.y
+    //     })
+    //     $currentWeapon.removeClass("weapon").addClass("player-weapon");
+    //     $playerWeapon.removeClass("player-weapon").addClass("weapon");
+    //     $playerWeapon.animate({
+    //         left: this.tile.x,
+    //         top: this.tile.y
+    //     })
+    //     // console.log(player.tile, player.weapon, this, this.tile)
+    //     let currentWeapon = this;
+    //     let playerWeapon = player.weapon;
+    //     let currentWeaponTile = currentWeapon.tile;
+    //     let playerWeaponTile = playerWeapon.tile;
+    //     currentWeapon.tile = playerWeaponTile;
+    //     playerWeapon.tile = currentWeaponTile;
+    //     currentWeaponTile.weapon = playerWeapon;
+    //     playerWeaponTile.weapon = currentWeapon;
+    // }
+
+    moveToTile(tile) {
         let $currentWeapon = $(`#weapon_${this.id}`);
         $currentWeapon.animate({
             left: tile.x,
             top: tile.y
         })
+
+        if (this.player) { // Do not change tile if weapon i haveing player
+            return;
+        }
+
         this.tile.weapon = null;
         tile.weapon = this;
         this.tile = tile;
     }
 
-    togglePlayerWeapon(){
+    togglePlayerWeapon() {
         $(`#weapon_${this.id}`).toggleClass("weapon player-weapon")
     }
 

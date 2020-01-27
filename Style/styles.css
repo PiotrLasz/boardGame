@@ -1,79 +1,88 @@
 #divBoard {
-    border:  1px solid #f0e294;
-    position: absolute;
+  border: 1px solid #f0e294;
+  position: absolute;
 }
 
-.tile{
-    border-collapse: collapse;
-    /* border:1px solid rgb(161, 238, 206); */
-    position: absolute;
-    background: url("../img/GrassTexture.jpg");
-    background-size:cover ;
-    background-repeat: no-repeat;
-    
+.tile {
+  border-collapse: collapse;
+  /* border:1px solid rgb(161, 238, 206); */
+  position: absolute;
+  background: url("../img/GrassTexture.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
-.tile-blocked{
-    background: black;
+.tile-blocked {
+  background: black;
 }
 
-.tile-high{
-    outline: 1px solid yellow;
-    box-shadow: 0px 0px 8px yellow;
-    cursor: pointer;
+.tile-high {
+  outline: 1px solid yellow;
+  box-shadow: 0px 0px 8px yellow;
+  cursor: pointer;
 }
 
-.tile-high:hover{
-    transform: scale(1.07);
-    box-shadow: 0px 0px 7px 5px white;
+.tile-high:hover {
+  transform: scale(1.07);
+  box-shadow: 0px 0px 7px 5px white;
 }
 
 .rockImage {
-
-height: 99px;
-width: 99px;
-
+  height: 99px;
+  width: 99px;
 }
 
-.player{
-    position: absolute;
-    
-    /* box-shadow: 1px 1px 5px grey; */
-}
-.player .item{
-    height:100%;
-    width:100%;
-    margin:auto;
-    
-}
+.player {
+  position: absolute;
 
-.weapon{
-    position: absolute;
-    pointer-events: none;
-    /* box-shadow: 1px 1px 5px yellow; */
+  /* box-shadow: 1px 1px 5px grey; */
+}
+.player .item {
+  height: 100%;
+  width: 100%;
+  margin: auto;
 }
 
-.weapon img{
-    border-radius: 100%;
-    height:80%;
-    width:80%;
-    margin:auto;
-    margin-top:"5%";
-    display:block;
+.weapon {
+  position: absolute;
+  pointer-events: none;
+  /* box-shadow: 1px 1px 5px yellow; */
 }
 
-
-.player-weapon{
-    position: absolute;
-    cursor: pointer;
-    /* box-shadow: 1px 1px 5px yellow; */
+.weapon img {
+  border-radius: 100%;
+  height: 80%;
+  width: 80%;
+  margin: auto;
+  margin-top: "5%";
+  display: block;
 }
 
-.player-weapon img{
-    height:30%;
-    width:30%;
-    position: absolute;
-    right:0;
-    bottom:0;
-    display:block;
+.player-weapon {
+  position: absolute;
+  cursor: pointer;
+  /* box-shadow: 1px 1px 5px yellow; */
+}
+
+.player-weapon img {
+  height: 30%;
+  width: 30%;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: block;
+}
+
+.player-weapon-name {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color:red;
+}
+
+.player-name {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: blue;
 }

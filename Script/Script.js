@@ -1,6 +1,6 @@
 let tileWidth = 99;
 let tileHeight = 99;
-
+let isDevEnv = true;
 
 function drawBoard() {
     window.objGame = new Game();
@@ -9,6 +9,7 @@ function drawBoard() {
         $("#divBoard").append(`
             <div class="tile  ${objTile.blocked ? "" : ""}" data-id="${objTile.id}" id="tile_${objTile.id}" style="top:${objTile.y}px;left:${objTile.x}px;height:${tileHeight - 2}px;width:${tileWidth - 2}px;">
                 ${objTile.blocked ? `<img src="img/rock${number}.png" class="rockImage" />` : ""}
+                ${isDevEnv ? `<div class="tile-name">${objTile.id}</div>`:""}
             </div>
         `);
 
@@ -20,10 +21,12 @@ function drawBoard() {
         $("#divBoard").append(`
             <div class="player-weapon" id="weapon_${player.weapon.id}" style="top:${player.weapon.tile.y}px;left:${player.weapon.tile.x}px;height:${tileHeight}px;width:${tileWidth}px;">
                     <img src="${player.weapon.img}" />
+                    ${isDevEnv ? `<div class="player-weapon-name">${player.weapon.name}</div>`:""}
             </div>
             <div class="player" id="player_${player.id}" style="top:${player.tile.y}px;left:${player.tile.x}px;height:${tileHeight}px;width:${tileWidth}px;">
                 <div class="item" style="" >
                     <img src="${player.image}" style="height:100%;width:100%;" />
+                    ${isDevEnv ? `<div class="player-name">${player.name}</div>`:""}
                 </div>
             </div>
 
@@ -38,6 +41,7 @@ function drawBoard() {
         $("#divBoard").append(`
             <div class="weapon" id="weapon_${weapon.id}" style="top:${weapon.tile.y}px;left:${weapon.tile.x}px;height:${tileHeight}px;width:${tileWidth}px;">
                 <img src="${weapon.img}" />
+                ${isDevEnv ? `<div class="player-weapon-name">${weapon.name}</div>`:""}
             </div>
         `);
 
@@ -53,26 +57,26 @@ function randomIntInRange(min, max) {
 };
 
 function onPlayerClick(player) {
-    
+
     hideHighlighted();
     player.highlightAdjecents();
-    $(".tile-high").each(function(){
+    $(".tile-high").each(function () {
         this.onclick = onHighClick.bind(player, this);
     })
 }
 
-function onHighClick(tileElement){
-    console.log(tileElement)
+function onHighClick(tileElement) {
+    // console.log(tileElement)
     let player = this;
-    let tile=objGame.findTileById($(tileElement).data("id"));
+    let tile = objGame.findTileById($(tileElement).data("id"));
     player.moveToTile(tile);
     hideHighlighted();
     objGame.nextTurn();
-    console.log(player)
+    // console.log(player)
 }
 
-function hideHighlighted(){
-    $(".tile-high").each(function(){
+function hideHighlighted() {
+    $(".tile-high").each(function () {
         this.onclick = null;
     })
     $(".tile-high").removeClass("tile-high")
