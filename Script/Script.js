@@ -9,7 +9,7 @@ function drawBoard() {
         $("#divBoard").append(`
             <div class="tile  ${objTile.blocked ? "" : ""}" data-id="${objTile.id}" id="tile_${objTile.id}" style="top:${objTile.y}px;left:${objTile.x}px;height:${tileHeight - 2}px;width:${tileWidth - 2}px;">
                 ${objTile.blocked ? `<img src="img/rock${number}.png" class="rockImage" />` : ""}
-                ${isDevEnv ? `<div class="tile-name">${objTile.id}</div>`:""}
+                ${isDevEnv ? `<div class="tile-name">${objTile.id}</div>` : ""}
             </div>
         `);
 
@@ -17,20 +17,18 @@ function drawBoard() {
 
 
     [objGame.player1, objGame.player2].forEach(player => {
-
+        objGame.weapons.push(player.weapon);
         $("#divBoard").append(`
             <div class="player-weapon" id="weapon_${player.weapon.id}" style="top:${player.weapon.tile.y}px;left:${player.weapon.tile.x}px;height:${tileHeight}px;width:${tileWidth}px;">
                     <img src="${player.weapon.img}" />
-                    ${isDevEnv ? `<div class="player-weapon-name">${player.weapon.name}</div>`:""}
+                    ${isDevEnv ? `<div class="player-weapon-name">${player.weapon.name}</div>` : ""}
             </div>
             <div class="player" id="player_${player.id}" style="top:${player.tile.y}px;left:${player.tile.x}px;height:${tileHeight}px;width:${tileWidth}px;">
                 <div class="item" style="" >
                     <img src="${player.image}" style="height:100%;width:100%;" />
-                    ${isDevEnv ? `<div class="player-name">${player.name}</div>`:""}
+                    ${isDevEnv ? `<div class="player-name">${player.name}</div>` : ""}
                 </div>
             </div>
-
-
         `);
 
         // $(`#player_${player.id}`)[0].onclick = onPlayerClick.bind(null, player)
@@ -38,17 +36,53 @@ function drawBoard() {
     })
 
     objGame.weapons.forEach(weapon => {
+        if (weapon.player) { // Player's weapon is already handled
+            return;
+        }
         $("#divBoard").append(`
             <div class="weapon" id="weapon_${weapon.id}" style="top:${weapon.tile.y}px;left:${weapon.tile.x}px;height:${tileHeight}px;width:${tileWidth}px;">
                 <img src="${weapon.img}" />
-                ${isDevEnv ? `<div class="player-weapon-name">${weapon.name}</div>`:""}
+                ${isDevEnv ? `<div class="player-weapon-name">${weapon.name}</div>` : ""}
             </div>
         `);
-
     });
 
     objGame.nextTurn();
 }
+
+function reArrangeItems() {
+    // Rearrange players
+    [objGame.player1, objGame.player2].forEach(player => {
+        let $player = $(`#player_${player.id}`);
+        let $playerWeapon = $(`#weapon_${player.weapon.id}`);
+        $player.animate({
+            left: player.tile.x,
+            top: player.tile.y
+        });
+
+        $playerWeapon.animate({
+            left: player.tile.x,
+            top: player.tile.y
+        });
+    })
+
+    objGame.weapons.forEach(weapon => {
+        let $weapon = $(`#weapon_${weapon.id}`);
+        if (weapon.player) {
+            // describe(weapon, "WWW")
+            $weapon.removeClass("weapon").addClass("player-weapon");
+        }
+        else {
+            $weapon.removeClass("player-weapon").addClass("weapon");
+        }
+        $weapon.animate({
+            left: weapon.tile.x,
+            top: weapon.tile.y
+        });
+    });
+
+}
+
 
 function randomIntInRange(min, max) {
 
@@ -80,6 +114,23 @@ function hideHighlighted() {
         this.onclick = null;
     })
     $(".tile-high").removeClass("tile-high")
+}
+
+function describe(obj, tag = "") {
+    let str = "Desc: " + tag.toUpperCase() + " ";
+    if (obj instanceof Player) {
+        str += `Player ${obj.name}, T:${obj.tile.id}, W:${obj.weapon.name} WT:${obj.weapon.tile.id} 
+        TW:${obj.tile.weapon && obj.tile.weapon.name} TP:${obj.tile.player && obj.tile.player.name}`;
+    }
+    else if (obj instanceof Tile) {
+        str += `Tile ${obj.id},  W:${obj.weapon && obj.weapon.name} WT:${obj.weapon && obj.weapon.tile.id} 
+        TW:${obj.weapon && obj.weapon.name} TP:${obj.player && obj.player.name}`;
+    }
+    else if (obj instanceof Weapon) {
+        str += `Weapon ${obj.name}, WP:${obj.player && obj.player.name}, WT:${obj.tile && obj.tile.id} 
+        TW:${obj.tile && obj.tile.weapon && obj.tile.weapon.name} `;
+    }
+    console.log(str);
 }
 
 drawBoard();
