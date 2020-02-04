@@ -4,6 +4,13 @@ let isDevEnv = true;
 
 function drawBoard() {
     window.objGame = new Game();
+
+    $("#divBoardArea").css({
+        height: (tileHeight * objGame.rows),
+        width: (tileWidth * objGame.cols),
+        margin:"auto",
+    })
+
     objGame.tiles.forEach((objTile) => {
         let number = randomIntInRange(1, 3);
         $("#divBoard").append(`
@@ -48,6 +55,8 @@ function drawBoard() {
     });
 
     objGame.nextTurn();
+    // console.log("before ra", objGame.turn)
+    reArrangeItems();
 }
 
 function reArrangeItems() {
@@ -81,6 +90,30 @@ function reArrangeItems() {
         });
     });
 
+    // console.log("printing player1",objGame.player1)
+
+    $("#divPlayer1Name").text(objGame.player1.name);
+    $("#divPlayer1Life").text(objGame.player1.life);
+    $("#imgPlayer1").attr("src", objGame.player1.image);
+    $("#imgPlayer1Weapon").attr("src", objGame.player1.weapon.img);
+    $("#imgPlayer1WeaponCapacity").text(objGame.player1.weapon.damage);
+
+    $("#divPlayer2Name").text(objGame.player2.name);
+    $("#divPlayer2Life").text(objGame.player2.life);
+    $("#imgPlayer2").attr("src", objGame.player2.image);
+    $("#imgPlayer2Weapon").attr("src", objGame.player2.weapon.img);
+    $("#imgPlayer2WeaponCapacity").text(objGame.player2.weapon.damage);
+
+
+    // console.log("turn ",objGame.turn)
+    if(objGame.turn == objGame.player1){
+        $("#divPlayer1Status").addClass("status-player-high")
+        $("#divPlayer2Status").removeClass("status-player-high")
+    }
+    else if(objGame.turn == objGame.player2){
+        $("#divPlayer2Status").addClass("status-player-high")
+        $("#divPlayer1Status").removeClass("status-player-high")
+    }
 }
 
 
@@ -103,9 +136,9 @@ function onHighClick(tileElement) {
     // console.log(tileElement)
     let player = this;
     let tile = objGame.findTileById($(tileElement).data("id"));
-    player.moveToTile(tile);
     hideHighlighted();
     objGame.nextTurn();
+    player.moveToTile(tile);
     // console.log(player)
 }
 

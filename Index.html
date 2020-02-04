@@ -1,13 +1,46 @@
 <html>
+
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link rel="stylesheet" href="Style/styles.css">
 </head>
-<body>
-    <div id="divBoard">
 
+<body>
+    <div id="divStatus" >
+        <div class="status-player" id="divPlayer1Status">
+            <div class="status-player-image">
+                <img id="imgPlayer1" src="" />
+                <div style="text-align: center;" id="divPlayer1Life" ></div>
+            </div>
+            <div class="status-player-detail">
+                <h3 id="divPlayer1Name"></h3>
+                <div class="status-player-weapon">
+                    <img id="imgPlayer1Weapon" src="" />
+                    <div id="imgPlayer1WeaponCapacity"></div>
+                </div>
+            </div>
+        </div>
+        <div class="status-player"  id="divPlayer2Status">
+            <div class="status-player-image">
+                <img id="imgPlayer2" src="" />
+                <div style="text-align: center;" id="divPlayer2Life" ></div>
+            </div>
+            <div class="status-player-detail">
+                <h3 id="divPlayer2Name"></h3>
+                <div class="status-player-weapon">
+                    <img id="imgPlayer2Weapon" src="" />
+                    <div id="imgPlayer2WeaponCapacity"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="divBoardArea">
+        <div id="divBoard">
+            
+        </div>
     </div>
 </body>
+
 </html>
 
 <script src="./Script/Game.js"></script>

@@ -1,6 +1,7 @@
 #divBoard {
   border: 1px solid #f0e294;
-  position: absolute;
+  position: relative;
+  margin:auto;
 }
 
 .tile {
@@ -85,4 +86,46 @@
   top: 0;
   right: 0;
   color: blue;
+}
+
+
+
+
+#divStatus{
+  height:150px;
+  border: 2px solid grey;
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+
+.status-player{
+  display: flex;
+
+}
+.status-player-high{
+  border: 2px solid gold;
+  background: lightgrey;
+}
+
+.status-player-image img{
+  height: 100px;
+  width: 100px;
+  text-align: center;
+}
+
+#divPlayerLife{
+  color:green;
+}
+
+.status-player-weapon{
+  display: flex;
+}
+
+.status-player-weapon img{
+  height: 40px;
+  width:40px;
+  margin:auto;
+}
+.status-player-weapon div{
+  margin:auto;
 }

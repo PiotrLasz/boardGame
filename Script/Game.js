@@ -12,6 +12,7 @@ class Game {
     player2;
     tiles2D = [];
     turn = null;
+    isFightBegan=false;
 
     constructor() {
         this.createGrid();
@@ -20,13 +21,30 @@ class Game {
     }
 
     nextTurn() {
+        let otherPlayer = this.turn;
         if (this.turn == this.player1) {
             this.turn = this.player2;
         }
         else {
             this.turn = this.player1;
         }
-        onPlayerClick(this.turn);
+
+
+        if(this.isFightBegan){
+            console.log("ask to player whom turn is currently going on. ", otherPlayer.name);
+            let choice =  this.turn.askToAttackOrDefend();
+            this.turn.choice = choice?"A":"D";
+            if(choice){ // Player choose to attack
+                otherPlayer.attack(this.turn);
+            }
+
+            reArrangeItems();
+
+            // this.nextTurn();
+        }
+        else{
+            onPlayerClick(this.turn);
+        }
     }
 
     isTileAdjacent(tile1, tile2) {
@@ -95,6 +113,30 @@ class Game {
 
     findTileById(tileId) {
         return this.tiles.find(tile => tile.id == tileId)
+    }
+
+
+    checkFigntCondition() {
+        console.log(this.player1.tile, this.player2.tile)
+        let tile1 = this.player1.tile;
+        let tile2 = this.player2.tile;
+        let isFightCondition = false;
+        if (tile1.row == tile2.row) {
+            let diff = Math.abs(tile1.col - tile2.col);
+            if (diff >= 1) {
+                isFightCondition = true;
+            }
+        }
+        else if (tile1.col == tile2.col) {
+            let diff = Math.abs(tile1.row - tile2.row);
+            if (diff >= 1) {
+                isFightCondition = true;
+            }
+        }
+
+        if (isFightCondition) {
+            console.log("now fight");
+        }
     }
 
 }
@@ -195,14 +237,14 @@ class Player {
         }
 
 
-        console.log("weapon found in between. ", !!foundWeapon)
+        // console.log("weapon found in between. ", !!foundWeapon)
         if (foundWeapon) {
             let foundWeaponOldTile = foundWeapon.tile;
             foundWeaponOldTile.weapon = oldWeapon;
             oldWeapon.tile = foundWeaponOldTile;
 
-            describe(foundWeaponOldTile, "FWOT ")
-            describe(oldWeapon, "OW ")
+            // describe(foundWeaponOldTile, "FWOT ")
+            // describe(oldWeapon, "OW ")
 
             this.weapon = foundWeapon;
             foundWeapon.tile = tile;
@@ -210,12 +252,13 @@ class Player {
             oldWeapon.player = null;
         }
 
-        describe(foundWeapon, "Found Weapon")
-        describe(oldTile, "Old Tile")
-        describe(tile, "new Tile")
-        describe(this, "Player")
+        // describe(foundWeapon, "Found Weapon")
+        // describe(oldTile, "Old Tile")
+        // describe(tile, "new Tile")
+        // describe(this, "Player")
 
         reArrangeItems();
+        objGame.checkFigntCondition();
     }
 
     isWeaponInBetween(tile1, tile2) {
@@ -224,7 +267,7 @@ class Player {
             tile1 = tile2;
             tile2 = t;
         }
-        console.log(tile1, tile2)
+        // console.log(tile1, tile2)
         for (let i = tile1.row; i <= tile2.row; i++) {
             for (let j = tile1.col; j <= tile2.col; j++) {
                 let tile = objGame.tiles2D[i][j];
@@ -275,6 +318,33 @@ class Player {
                 break;
         }
     }
+
+    attack(player) {
+        let ourDemagePower = this.weapon.damage;
+        let theirDemagePower = player.weapon.damage;
+        if (player.choice == "D") {
+            player.life -= Math.floor(ourDemagePower / 2);
+        }
+        else {
+            player.life -= ourDemagePower;
+        }
+    }
+
+    askToAttackOrDefend(){
+
+        return confirm("Attack Yes, Defend NO")
+    }
+
+    // defend(player) {
+    //     let ourDemagePower = this.weapon.damage;
+    //     let theirDemagePower = player.weapon.damage;
+    //     // if (player.choice == "D") {
+    //     //     player.life -= Math.floor(ourDemagePower / 2);
+    //     // }
+    //     // else {
+    //     //     player.life -= ourDemagePower;
+    //     // }
+    // }
 
 }
 
