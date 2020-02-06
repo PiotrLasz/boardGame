@@ -12,7 +12,7 @@ class Game {
     player2;
     tiles2D = [];
     turn = null;
-    isFightBegan=false;
+    isFightBegan = false;
 
     constructor() {
         this.createGrid();
@@ -30,19 +30,10 @@ class Game {
         }
 
 
-        if(this.isFightBegan){
-            console.log("ask to player whom turn is currently going on. ", otherPlayer.name);
-            let choice =  this.turn.askToAttackOrDefend();
-            this.turn.choice = choice?"A":"D";
-            if(choice){ // Player choose to attack
-                otherPlayer.attack(this.turn);
-            }
+        if (this.isFightBegan) {
 
-            reArrangeItems();
-
-            // this.nextTurn();
         }
-        else{
+        else {
             onPlayerClick(this.turn);
         }
     }
@@ -52,6 +43,52 @@ class Game {
         let difCol = Math.abs(tile1.col - tile2.col);
         return (diffRow <= 1 || difCol <= 1);
 
+    }
+
+    async startRound() { // Round means both player fight with each other. two choices. 
+        let isPlayer1Attaching = await this.player1.askToAttackOrDefend();
+        let isPlayer2Attaching = await this.player2.askToAttackOrDefend();
+
+        let player1WeaponPower = this.player1.weapon.damage;
+        let player2WeaponPower = this.player2.weapon.damage;
+
+        if (isPlayer1Attaching && isPlayer2Attaching) { // Player1 attack, player2 attack // demage to both
+            this.player1.life -= (player2WeaponPower);
+            this.player2.life -= (player1WeaponPower);
+        }
+        else if (isPlayer1Attaching && !isPlayer2Attaching) { // Player1 attack, player2 defend  // half demage to player2
+            //this.player1.life -= (player2WeaponPower);
+            this.player2.life -= (player1WeaponPower / 2);
+        }
+        else if (!isPlayer1Attaching && isPlayer2Attaching) { // player1 defend ,Player2 attack // half demage to player1
+            this.player1.life -= (player2WeaponPower / 2);
+            // this.player2.life -= (player1WeaponPower / 2);
+        }
+        else if (!isPlayer1Attaching && !isPlayer2Attaching) { // No attach no demage
+            //this.player1.life -= (player2WeaponPower);
+            // this.player2.life -= (player1WeaponPower / 2);
+        }
+
+
+        reArrangeItems();
+
+        if (this.player1.life <= 0) {
+            Swal.fire(
+                'Game Over',
+                this.player2.name + " wins",
+                'info'
+            )
+        }
+        else if (this.player2.life <= 0) {
+            Swal.fire(
+                'Game Over',
+                this.player1.name + " wins",
+                'info'
+            )
+        }
+        else {
+            this.startRound();
+        }
     }
 
     createPlayers() {
@@ -93,8 +130,8 @@ class Game {
     }
 
     createGrid() {
-        this.cols = randomIntInRange(8, 8);
-        this.rows = randomIntInRange(8, 8);
+        this.cols = randomIntInRange(7, 10);
+        this.rows = randomIntInRange(7, 10);
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.cols; j++) {
                 let objTile = new Tile(i, j, (randomIntInRange(2, 7) == 3));
@@ -121,21 +158,51 @@ class Game {
         let tile1 = this.player1.tile;
         let tile2 = this.player2.tile;
         let isFightCondition = false;
+
+        let isFightVertical = false;
         if (tile1.row == tile2.row) {
+            isFightVertical = false;
             let diff = Math.abs(tile1.col - tile2.col);
-            if (diff >= 1) {
+            if (diff == 1) {
                 isFightCondition = true;
             }
         }
         else if (tile1.col == tile2.col) {
+            isFightVertical = true;
             let diff = Math.abs(tile1.row - tile2.row);
-            if (diff >= 1) {
+            if (diff == 1) {
                 isFightCondition = true;
             }
         }
 
         if (isFightCondition) {
-            console.log("now fight");
+            if (isFightVertical) {
+                if (tile1.row > tile2.row) { // player1 is down, player2 is up
+                    this.player1.changePlayerDirection(UP);
+                    this.player2.changePlayerDirection(DOWN);
+                }
+                else {// player2 is down, player1 is up
+                    this.player1.changePlayerDirection(DOWN);
+                    this.player2.changePlayerDirection(UP);
+                }
+            }
+            else {
+                if ((tile1.col > tile2.col)) { // Player1 is on right, player2 is on left
+                    this.player1.changePlayerDirection(RIGHT);
+                    this.player2.changePlayerDirection(LEFT);
+                }
+                else {
+                    this.player1.changePlayerDirection(LEFT);
+                    this.player2.changePlayerDirection(RIGHT);
+                }
+            }
+
+            $(".tile-high").each(function () {
+                this.onclick = null;
+                $(this).removeClass("tile-high");
+            })
+            this.startRound();
+            //console.log("now fight");
         }
     }
 
@@ -330,9 +397,8 @@ class Player {
         }
     }
 
-    askToAttackOrDefend(){
-
-        return confirm("Attack Yes, Defend NO")
+    askToAttackOrDefend() {
+        return confirmSwal(this);
     }
 
     // defend(player) {

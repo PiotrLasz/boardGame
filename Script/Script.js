@@ -1,6 +1,6 @@
 let tileWidth = 99;
 let tileHeight = 99;
-let isDevEnv = true;
+let isDevEnv = false;
 
 function drawBoard() {
     window.objGame = new Game();
@@ -8,7 +8,7 @@ function drawBoard() {
     $("#divBoardArea").css({
         height: (tileHeight * objGame.rows),
         width: (tileWidth * objGame.cols),
-        margin:"auto",
+        margin: "auto",
     })
 
     objGame.tiles.forEach((objTile) => {
@@ -106,14 +106,14 @@ function reArrangeItems() {
 
 
     // console.log("turn ",objGame.turn)
-    if(objGame.turn == objGame.player1){
-        $("#divPlayer1Status").addClass("status-player-high")
-        $("#divPlayer2Status").removeClass("status-player-high")
-    }
-    else if(objGame.turn == objGame.player2){
-        $("#divPlayer2Status").addClass("status-player-high")
-        $("#divPlayer1Status").removeClass("status-player-high")
-    }
+    // if (objGame.turn == objGame.player1) {
+    //     $("#divPlayer1Status").addClass("status-player-high")
+    //     $("#divPlayer2Status").removeClass("status-player-high")
+    // }
+    // else if (objGame.turn == objGame.player2) {
+    //     $("#divPlayer2Status").addClass("status-player-high")
+    //     $("#divPlayer1Status").removeClass("status-player-high")
+    // }
 }
 
 
@@ -165,5 +165,28 @@ function describe(obj, tag = "") {
     }
     console.log(str);
 }
+
+async function confirmSwal(player) {
+    let result = await Swal.fire({
+        title: player.name,
+        icon: 'info',
+        html: `Please choose your action`,
+        // showCloseButton: true,
+        showCancelButton: true,
+        focusConfirm: false,
+        allowOutsideClick: false,
+        confirmButtonText:
+            `Attack`,
+        cancelButtonText:
+            `Defend`
+    });
+    if (result.value) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 
 drawBoard();
